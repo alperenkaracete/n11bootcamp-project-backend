@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [0.1.0] - 2026-04-28
+
+### Added
+- User Service implemented (port 8081)
+    - JWT authentication (access token, refresh token)
+    - Redis token whitelist for instant logout
+    - Spring Security configured (stateless, JWT filter)
+    - Swagger documentation enabled
+- Architecture diagram added (docs/diagrams/)
+
 ## [0.0.1] - 2026-04-27
 
 ### Added
