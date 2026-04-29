@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [0.2.0] - 2026-04-29
+
+### Added
+- Product Service implemented (port 8082)
+  - Product CRUD operations
+  - Pagination and search by name
+  - Category filtering
+  - Swagger documentation enabled
+
 ## [0.1.0] - 2026-04-28
 
 ### Added
