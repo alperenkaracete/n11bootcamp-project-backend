@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [0.3.0] - 2026-04-29
+
+### Added
+- Stock Service implemented (port 8084)
+  - Stock CRUD operations
+  - Stock decrease method (RabbitMQ integration pending)
+  - Swagger documentation enabled
+
 ## [0.2.0] - 2026-04-29
 
 ### Added
