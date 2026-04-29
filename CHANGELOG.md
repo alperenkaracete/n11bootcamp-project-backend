@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [0.4.0] - 2026-04-30
+
+### Added
+- Shopping Cart Service implemented (port 8083)
+  - Cart CRUD operations
+  - Redis based cart storage
+  - Guest cart merge on login
+  - Swagger documentation enabled
+
 ## [0.3.0] - 2026-04-29
 
 ### Added
