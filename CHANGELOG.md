@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [0.6.0] - 2026-04-30
+
+### Added
+- Payment Service implemented (port 8086)
+  - Iyzico Sandbox integration
+  - Payment processing with success/failed status
+  - Duplicate payment prevention for successful payments
+  - RabbitMQ event publish (payment.success, payment.failed)
+  - Swagger documentation enabled
+
 ## [0.5.0] - 2026-04-30
 
 ### Added

@@ -1,4 +1,4 @@
-package n11bootcamp_project_backend.shopping_cart_service;
+package n11bootcamp_project_backend.payment_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-public class ShoppingCartServiceApplication {
+public class PaymentServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ShoppingCartServiceApplication.class, args);
+		SpringApplication.run(PaymentServiceApplication.class, args);
 	}
 
 }
