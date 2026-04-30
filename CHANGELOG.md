@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [0.8.0] - 2026-04-30
+
+### Added
+- Log Service implemented (port 8088)
+  - RabbitMQ consumer for log events
+  - Log storage in PostgreSQL
+  - Log endpoints by service and level
+
 ## [0.7.0] - 2026-04-30
 
 ### Added
