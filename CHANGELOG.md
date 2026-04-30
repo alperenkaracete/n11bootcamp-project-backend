@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [0.5.0] - 2026-04-30
+
+### Added
+- Order Service implemented (port 8085)
+  - Order and OrderItem entities with OneToMany relation
+  - Order CRUD operations
+  - OrderStatus enum (PENDING, CONFIRMED, CANCELLED)
+  - RabbitMQ event publish on order creation (queue config pending)
+  - Swagger documentation enabled
+
 ## [0.4.0] - 2026-04-30
 
 ### Added
