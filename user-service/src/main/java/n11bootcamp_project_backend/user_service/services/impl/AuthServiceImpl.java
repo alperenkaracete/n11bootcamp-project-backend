@@ -10,6 +10,7 @@ import n11bootcamp_project_backend.user_service.enums.Role;
 import n11bootcamp_project_backend.user_service.repository.UserRepository;
 import n11bootcamp_project_backend.user_service.services.AuthService;
 import n11bootcamp_project_backend.user_service.services.RedisService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final RedisService redisService;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     public void register(RegisterRequest request) {
@@ -41,6 +43,11 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         userRepository.save(user);
+        rabbitTemplate.convertAndSend(
+                "saga.exchange",
+                "user.registered",
+                user.getEmail()  // email gönder, orderId değil
+        );
     }
 
     @Override

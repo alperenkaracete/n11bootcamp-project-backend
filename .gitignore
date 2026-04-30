@@ -27,3 +27,5 @@ Thumbs.db
 
 # Docker
 docker-compose.override.yml
+
+config-server/src/main/resources/configs/notification-service.properties

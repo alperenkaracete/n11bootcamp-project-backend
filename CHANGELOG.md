@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## [0.7.0] - 2026-04-30
+
+### Added
+- Notification Service implemented (port 8087)
+  - RabbitMQ consumer for payment.success event
+  - Email notification on successful payment
+  - Welcome email on user registration
+
 ## [0.6.0] - 2026-04-30
 
 ### Added
