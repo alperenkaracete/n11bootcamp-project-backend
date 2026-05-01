@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## [0.9.0] - 2026-05-01
+
+### Added
+- Full saga pattern integration completed
+  - Order → Stock → Payment → Confirmed flow
+  - Order status updates via RabbitMQ events
+  - Payment failed → Order cancelled
+  - Order events include product items
+  - Automatic stock decrease on order
+  - Order cancellation on stock failure
+  - JSON message conversion across services
+
 ## [0.8.0] - 2026-04-30
 
 ### Added

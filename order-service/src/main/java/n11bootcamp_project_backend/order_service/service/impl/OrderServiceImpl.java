@@ -1,6 +1,8 @@
 package n11bootcamp_project_backend.order_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import n11bootcamp_project_backend.order_service.dto.event.OrderEventMessage;
+import n11bootcamp_project_backend.order_service.dto.event.OrderItemMessage;
 import n11bootcamp_project_backend.order_service.dto.request.CreateOrderRequest;
 import n11bootcamp_project_backend.order_service.dto.response.OrderItemResponse;
 import n11bootcamp_project_backend.order_service.dto.response.OrderResponse;
@@ -49,10 +51,22 @@ public class OrderServiceImpl implements OrderService {
         Order savedOrder = orderRepository.save(order);
 
         // RabbitMQ'ya event yay — stock ve payment servisler dinliyor
+        List<OrderItemMessage> itemMessages = savedOrder.getItems().stream()
+                .map(item -> new OrderItemMessage(
+                        item.getProductId().toString(),
+                        item.getQuantity()
+                ))
+                .toList();
+
+        OrderEventMessage eventMessage = new OrderEventMessage(
+                savedOrder.getId().toString(),
+                itemMessages
+        );
+
         rabbitTemplate.convertAndSend(
                 "saga.exchange",
                 "order.created",
-                savedOrder.getId().toString()
+                eventMessage
         );
 
         return toResponse(savedOrder);
