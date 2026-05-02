@@ -18,14 +18,6 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    // Ödeme başlat
-    @PostMapping
-    public ResponseEntity<PaymentResponse> processPayment(
-            @Valid @RequestBody PaymentRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(paymentService.processPayment(request));
-    }
-
     // Sipariş ID'sine göre ödeme getir
     @GetMapping("/order/{orderId}")
     public ResponseEntity<PaymentResponse> getPaymentByOrderId(

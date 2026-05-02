@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## [1.0.0] - 2026-05-03
+
+### Added
+- stock-service: PaymentFailedConsumer for stock compensation on payment failure
+- stock-service: OrderServiceClient (FeignClient) to retrieve order items
+- stock-service: increaseStock method for stock rollback
+- stock-service: StockSyncController for manual stock management
+- payment-service: PaymentEventConsumer, RedisConfig
+- order-service: GET /{orderId}/items endpoint for stock compensation queries
+- order-service: PaymentRequest DTO, RedisConfig
+- product-service: Category entity, CategoryRepository, DummyDataSeeder
+
+### Changed
+- All services: integrated LogProducer for centralized logging via common-lib
+- All services: removed duplicate RabbitMQ bean definitions, using CommonRabbitConfig
+- All services: added scanBasePackages for common-lib bean discovery
+- stock-service: enabled @EnableFeignClients, updated SecurityConfig and RabbitMQConfig
+- user-service: fixed misplaced log statements in AuthServiceImpl
+
+### Fixed
+- Stock not being restored after payment failure (saga compensation flow)
+
 ## [0.11.0] - 2026-05-03
 
 ### Added

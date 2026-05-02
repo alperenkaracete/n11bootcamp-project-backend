@@ -1,9 +1,11 @@
 package n11bootcamp_project_backend.stock_service.service;
 
+import n11bootcamp_project_backend.stock_service.dto.event.OrderItemMessage;
 import n11bootcamp_project_backend.stock_service.dto.request.CreateStockRequest;
 import n11bootcamp_project_backend.stock_service.dto.request.UpdateStockRequest;
 import n11bootcamp_project_backend.stock_service.dto.response.StockResponse;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface StockService {
@@ -22,4 +24,10 @@ public interface StockService {
 
     // Stok sil
     void deleteStock(UUID productId);
+
+    public void decreaseStocksForOrder(List<OrderItemMessage> items);
+
+    public void restoreStocksForOrder(List<OrderItemMessage> items);
+
+    public void increaseStock(UUID productId, Integer quantity);
 }

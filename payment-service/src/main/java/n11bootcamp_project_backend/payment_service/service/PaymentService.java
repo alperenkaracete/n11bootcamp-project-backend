@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface PaymentService {
 
     // Ödeme başlat
-    PaymentResponse processPayment(PaymentRequest request);
+    PaymentResponse processPayment(UUID orderId);
 
     // Ödeme bilgisi getir
     PaymentResponse getPaymentByOrderId(UUID orderId);

@@ -1,6 +1,7 @@
 package n11bootcamp_project_backend.shopping_cart_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import n11bootcamp_project_backend.producer.LogProducer;
 import n11bootcamp_project_backend.shopping_cart_service.dto.request.AddToCartRequest;
 import n11bootcamp_project_backend.shopping_cart_service.dto.request.UpdateCartItemRequest;
 import n11bootcamp_project_backend.shopping_cart_service.dto.response.CartItemResponse;
@@ -23,12 +24,10 @@ import java.util.concurrent.TimeUnit;
 public class CartServiceImpl implements CartService {
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final LogProducer logProducer;
 
-    // Redis key prefix'leri
     private static final String USER_CART_PREFIX = "cart:user:";
     private static final String GUEST_CART_PREFIX = "cart:guest:";
-
-    // TTL — kullanıcı sepeti 7 gün, guest sepeti 1 gün
     private static final long USER_CART_TTL = 7 * 24 * 60 * 60;
     private static final long GUEST_CART_TTL = 24 * 60 * 60;
 
@@ -37,18 +36,16 @@ public class CartServiceImpl implements CartService {
         String key = USER_CART_PREFIX + userId;
         Cart cart = getOrCreateCart(key, userId);
 
-        // Ürün zaten sepette var mı?
         Optional<CartItem> existingItem = cart.getItems().stream()
                 .filter(item -> item.getProductId().equals(request.productId()))
                 .findFirst();
 
         if (existingItem.isPresent()) {
-            // Varsa miktarı artır
             existingItem.get().setQuantity(
                     existingItem.get().getQuantity() + request.quantity()
             );
+            logProducer.sendLog("shopping-cart-service", "INFO", "Product quantity increased in cart. User: " + userId + ", Product: " + request.productId());
         } else {
-            // Yoksa yeni ekle
             CartItem newItem = CartItem.builder()
                     .productId(request.productId())
                     .productName(request.productName())
@@ -56,6 +53,7 @@ public class CartServiceImpl implements CartService {
                     .quantity(request.quantity())
                     .build();
             cart.getItems().add(newItem);
+            logProducer.sendLog("shopping-cart-service", "INFO", "New product added to cart. User: " + userId + ", Product: " + request.productId());
         }
 
         saveCart(key, cart, USER_CART_TTL);
@@ -66,22 +64,30 @@ public class CartServiceImpl implements CartService {
     public CartResponse getCart(UUID userId) {
         String key = USER_CART_PREFIX + userId;
         Cart cart = getOrCreateCart(key, userId);
+        logProducer.sendLog("shopping-cart-service", "INFO", "Cart retrieved for user: " + userId);
         return toResponse(cart);
     }
 
     @Override
-    public CartResponse updateCartItem(UUID userId, UUID productId,
-                                       UpdateCartItemRequest request) {
+    public CartResponse updateCartItem(UUID userId, UUID productId, UpdateCartItemRequest request) {
         String key = USER_CART_PREFIX + userId;
         Cart cart = getOrCreateCart(key, userId);
 
-        // Ürünü bul ve miktarı güncelle
-        cart.getItems().stream()
+        boolean found = cart.getItems().stream()
                 .filter(item -> item.getProductId().equals(productId))
                 .findFirst()
-                .ifPresent(item -> item.setQuantity(request.quantity()));
+                .map(item -> {
+                    item.setQuantity(request.quantity());
+                    return true;
+                }).orElse(false);
 
-        saveCart(key, cart, USER_CART_TTL);
+        if (found) {
+            saveCart(key, cart, USER_CART_TTL);
+            logProducer.sendLog("shopping-cart-service", "INFO", "Cart item updated. User: " + userId + ", Product: " + productId + ", New Quantity: " + request.quantity());
+        } else {
+            logProducer.sendLog("shopping-cart-service", "WARN", "Update failed: Product not found in cart. User: " + userId + ", Product: " + productId);
+        }
+
         return toResponse(cart);
     }
 
@@ -90,16 +96,22 @@ public class CartServiceImpl implements CartService {
         String key = USER_CART_PREFIX + userId;
         Cart cart = getOrCreateCart(key, userId);
 
-        // Ürünü listeden çıkar
-        cart.getItems().removeIf(item -> item.getProductId().equals(productId));
+        boolean removed = cart.getItems().removeIf(item -> item.getProductId().equals(productId));
 
-        saveCart(key, cart, USER_CART_TTL);
+        if (removed) {
+            saveCart(key, cart, USER_CART_TTL);
+            logProducer.sendLog("shopping-cart-service", "INFO", "Product removed from cart. User: " + userId + ", Product: " + productId);
+        } else {
+            logProducer.sendLog("shopping-cart-service", "WARN", "Remove failed: Product not in cart. User: " + userId + ", Product: " + productId);
+        }
+
         return toResponse(cart);
     }
 
     @Override
     public void clearCart(UUID userId) {
         redisTemplate.delete(USER_CART_PREFIX + userId);
+        logProducer.sendLog("shopping-cart-service", "INFO", "Cart cleared for user: " + userId);
     }
 
     @Override
@@ -110,7 +122,6 @@ public class CartServiceImpl implements CartService {
         Cart guestCart = (Cart) redisTemplate.opsForValue().get(guestKey);
         Cart userCart = getOrCreateCart(userKey, userId);
 
-        // Guest sepeti varsa merge et
         if (guestCart != null && !guestCart.getItems().isEmpty()) {
             for (CartItem guestItem : guestCart.getItems()) {
                 Optional<CartItem> existingItem = userCart.getItems().stream()
@@ -118,24 +129,21 @@ public class CartServiceImpl implements CartService {
                         .findFirst();
 
                 if (existingItem.isPresent()) {
-                    // Aynı ürün varsa miktarları topla
                     existingItem.get().setQuantity(
                             existingItem.get().getQuantity() + guestItem.getQuantity()
                     );
                 } else {
-                    // Yoksa direkt ekle
                     userCart.getItems().add(guestItem);
                 }
             }
-            // Guest sepeti sil
             redisTemplate.delete(guestKey);
+            logProducer.sendLog("shopping-cart-service", "INFO", "Guest cart merged into user cart. GuestID: " + guestId + ", UserID: " + userId);
         }
 
         saveCart(userKey, userCart, USER_CART_TTL);
         return toResponse(userCart);
     }
 
-    // Redis'ten sepeti getir, yoksa yeni oluştur
     private Cart getOrCreateCart(String key, UUID userId) {
         Cart cart = (Cart) redisTemplate.opsForValue().get(key);
         if (cart == null) {
@@ -147,12 +155,15 @@ public class CartServiceImpl implements CartService {
         return cart;
     }
 
-    // Sepeti Redis'e kaydet
     private void saveCart(String key, Cart cart, long ttl) {
-        redisTemplate.opsForValue().set(key, cart, ttl, TimeUnit.SECONDS);
+        try {
+            redisTemplate.opsForValue().set(key, cart, ttl, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            logProducer.sendLog("shopping-cart-service", "ERROR", "Redis save failed for key: " + key + ". Error: " + e.getMessage());
+            throw e;
+        }
     }
 
-    // Cart → CartResponse dönüşümü
     private CartResponse toResponse(Cart cart) {
         List<CartItemResponse> itemResponses = cart.getItems().stream()
                 .map(item -> new CartItemResponse(

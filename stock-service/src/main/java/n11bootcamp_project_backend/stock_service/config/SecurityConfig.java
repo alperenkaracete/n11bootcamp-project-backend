@@ -1,5 +1,6 @@
 package n11bootcamp_project_backend.stock_service.config;
 
+import jakarta.ws.rs.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -25,9 +26,9 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml",
-                                "/api/stocks/**",
                                 "/error"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/stocks/**").permitAll()
                         .anyRequest().authenticated());
 
         return http.build();

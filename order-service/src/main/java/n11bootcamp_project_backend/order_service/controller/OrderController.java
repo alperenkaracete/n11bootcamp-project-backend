@@ -3,6 +3,7 @@ package n11bootcamp_project_backend.order_service.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import n11bootcamp_project_backend.order_service.dto.request.CreateOrderRequest;
+import n11bootcamp_project_backend.order_service.dto.response.OrderItemResponse;
 import n11bootcamp_project_backend.order_service.dto.response.OrderResponse;
 import n11bootcamp_project_backend.order_service.service.OrderService;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,12 @@ public class OrderController {
     public ResponseEntity<OrderResponse> getOrderById(
             @PathVariable UUID orderId) {
         return ResponseEntity.ok(orderService.getOrderById(orderId));
+    }
+
+    // OrderController
+    @GetMapping("/{orderId}/items")
+    public ResponseEntity<List<OrderItemResponse>> getOrderItems(@PathVariable UUID orderId) {
+        return ResponseEntity.ok(orderService.getOrderItems(orderId));
     }
 
     // Kullanıcının tüm siparişleri

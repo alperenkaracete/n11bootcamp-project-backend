@@ -1,6 +1,7 @@
 package n11bootcamp_project_backend.order_service.service;
 
 import n11bootcamp_project_backend.order_service.dto.request.CreateOrderRequest;
+import n11bootcamp_project_backend.order_service.dto.response.OrderItemResponse;
 import n11bootcamp_project_backend.order_service.dto.response.OrderResponse;
 import n11bootcamp_project_backend.order_service.enums.OrderStatus;
 
@@ -20,4 +21,6 @@ public interface OrderService {
 
     // Sipariş durumunu güncelle (Saga'dan tetiklenir)
     void updateOrderStatus(UUID orderId, OrderStatus status);
+
+    public List<OrderItemResponse> getOrderItems(UUID orderId);
 }

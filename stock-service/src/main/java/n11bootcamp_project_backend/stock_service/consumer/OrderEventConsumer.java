@@ -23,31 +23,19 @@ public class OrderEventConsumer {
     public void handleOrderCreated(OrderEventMessage orderEvent) {
         log.info("Order created event received: {}", orderEvent.orderId());
 
-        // Her ürün için stok düş
-        for (OrderItemMessage item : orderEvent.items()) {
-            try {
-                stockService.decreaseStock(
-                        UUID.fromString(item.productId()),
-                        item.quantity()
-                );
-                log.info("Stock decreased for productId: {}", item.productId());
-            } catch (Exception e) {
-                log.error("Stock decrease failed for productId: {}", item.productId());
-                // Stok yetersizse payment.failed eventi yay
-                rabbitTemplate.convertAndSend(
-                        "saga.exchange",
-                        "stock.failed",
-                        orderEvent.orderId()
-                );
-                return;
-            }
-        }
+        try {
+            // Tüm stok düşme işlemini tek bir işlem (transaction) olarak servise devret
+            stockService.decreaseStocksForOrder(orderEvent.items());
 
-        // Tüm stoklar başarılı → saga devam et
-        rabbitTemplate.convertAndSend(
-                "saga.exchange",
-                "stock.reserved",
-                orderEvent.orderId()
-        );
+            // Tüm stoklar BAŞARILI düştüyse saga'ya devam et
+            rabbitTemplate.convertAndSend("saga.exchange", "stock.reserved", orderEvent.orderId());
+            log.info("Stock reserved for orderId: {}", orderEvent.orderId());
+
+        } catch (Exception e) {
+            log.error("Stock reservation failed for orderId: {}. Reason: {}", orderEvent.orderId(), e.getMessage());
+
+            // Stok YETERSİZSE saga'yı iptal et
+            rabbitTemplate.convertAndSend("saga.exchange", "stock.failed", orderEvent.orderId());
+        }
     }
 }

@@ -26,12 +26,12 @@ public class PaymentEventConsumer {
     @RabbitListener(queues = "order.payment.failed.queue")
     public void handlePaymentFailed(@Payload String orderId) {
         log.info("Payment failed event received for orderId: {}", orderId);
-        orderService.updateOrderStatus(UUID.fromString(orderId), OrderStatus.CANCELLED);
+        orderService.updateOrderStatus(UUID.fromString(orderId), OrderStatus.PAYMENT_FAILED);
     }
 
     @RabbitListener(queues = "order.stock.failed.queue")
     public void handleStockFailed(@Payload String orderId) {
         log.info("Stock failed event received for orderId: {}", orderId);
-        orderService.updateOrderStatus(UUID.fromString(orderId), OrderStatus.CANCELLED);
+        orderService.updateOrderStatus(UUID.fromString(orderId), OrderStatus.STOCK_FAILED);
     }
 }

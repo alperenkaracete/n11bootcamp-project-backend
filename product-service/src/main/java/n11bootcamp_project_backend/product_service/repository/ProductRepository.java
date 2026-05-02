@@ -10,7 +10,8 @@ import java.util.UUID;
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 
     // Kategori bazlı filtreleme
-    Page<Product> findByCategory(String category, Pageable pageable);
+    // ProductRepository.java
+    Page<Product> findByCategoryName(String name, Pageable pageable);
 
     // İsme göre arama
     Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
