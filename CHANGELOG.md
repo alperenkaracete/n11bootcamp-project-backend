@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [0.10.0] - 2026-05-03
+
+### Added
+- API Gateway with JWT + Redis auth, route config and logging filter implemented
+  - Spring Cloud Gateway (WebMVC) route definitions via RouteConfig
+  - AuthenticationFilter with JWT validation and Redis token check
+  - X-User-Id, X-User-Role headers forwarded to downstream services
+  - Public/protected route separation
+  - CORS configuration for React frontend
+
 ## [0.9.0] - 2026-05-01
 
 ### Added
