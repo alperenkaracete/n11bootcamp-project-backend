@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## [0.11.0] - 2026-05-03
+
+### Added
+- common-lib module: shared DTOs (LogMessage, OrderItemQuantityResponse), RabbitConstants, CommonRabbitConfig, LogProducer
+- Centralized log publishing via RabbitMQ across all services
+- log-service: exchange/queue/binding config with RabbitConstants
+- notification-service: refactored consumers (PaymentNotificationConsumer, WelcomeNotificationConsumer)
+
+### Changed
+- log-service, notification-service: scanBasePackages added for common-lib bean scanning
+- RabbitMQ JSON converter moved to common-lib, removed duplicates from individual services
+- log-service.properties updated in config-server
+
+### Removed
+- Duplicate RabbitMQ config (jsonMessageConverter, rabbitTemplate) from individual services
+- notification-service: old NotificationConsumer and WelcomeConsumer replaced with renamed versions
+
 ## [0.10.0] - 2026-05-03
 
 ### Added
