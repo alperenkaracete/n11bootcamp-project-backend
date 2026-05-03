@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [1.0.1] - 2026-05-03 - Dockerization & DevOps Integration
+
+### Added
+- Integrated **Google Jib Maven Plugin** across all microservices for automated containerization.
+- Configured container metadata including main classes, ports, and base images.
+- Set up **Java 21 (Eclipse Temurin)** as the lightweight Alpine-based runtime environment.
+- Established connection parameters for the **Docker Hub** repository (`alperenkaracete`).
+- Removed the need for manual Dockerfile maintenance, streamlining the build process.
+
 ## [1.0.0] - 2026-05-03
 
 ### Added
