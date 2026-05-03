@@ -1,0 +1,250 @@
+version: '3.8'
+
+services:
+
+  # ==================== INFRASTRUCTURE ====================
+
+  postgresql:
+    image: postgres:16
+    container_name: postgresql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ==================== CORE SERVICES ====================
+
+  discovery-server:
+    image: alperenkaracete/discovery-server
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8761/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  config-server:
+    image: alperenkaracete/config-server
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    depends_on:
+      discovery-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8888/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ==================== APPLICATION SERVICES ====================
+
+  api-gateway:
+    image: alperenkaracete/api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+    depends_on:
+      config-server:
+        condition: service_healthy
+
+  user-service:
+    image: alperenkaracete/user-service
+    container_name: user-service
+    ports:
+      - "8081:8081"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/user_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_RABBITMQ_HOST: rabbitmq
+    depends_on:
+      config-server:
+        condition: service_healthy
+      postgresql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  product-service:
+    image: alperenkaracete/product-service
+    container_name: product-service
+    ports:
+      - "8082:8082"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/product_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_RABBITMQ_HOST: rabbitmq
+    depends_on:
+      config-server:
+        condition: service_healthy
+      postgresql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  shopping-cart-service:
+    image: alperenkaracete/shopping-cart-service
+    container_name: shopping-cart-service
+    ports:
+      - "8083:8083"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_DATA_REDIS_HOST: redis
+    depends_on:
+      config-server:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  stock-service:
+    image: alperenkaracete/stock-service
+    container_name: stock-service
+    ports:
+      - "8084:8084"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/stock_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_RABBITMQ_HOST: rabbitmq
+    depends_on:
+      config-server:
+        condition: service_healthy
+      postgresql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  order-service:
+    image: alperenkaracete/order-service
+    container_name: order-service
+    ports:
+      - "8085:8085"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/order_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_DATA_REDIS_HOST: redis
+    depends_on:
+      config-server:
+        condition: service_healthy
+      postgresql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  payment-service:
+    image: alperenkaracete/payment-service
+    container_name: payment-service
+    ports:
+      - "8086:8086"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/payment_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_DATA_REDIS_HOST: redis
+    depends_on:
+      config-server:
+        condition: service_healthy
+      postgresql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  notification-service:
+    image: alperenkaracete/notification-service
+    container_name: notification-service
+    ports:
+      - "8087:8087"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_RABBITMQ_HOST: rabbitmq
+    depends_on:
+      config-server:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  log-service:
+    image: alperenkaracete/log-service
+    container_name: log-service
+    ports:
+      - "8088:8088"
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/log_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_RABBITMQ_HOST: rabbitmq
+    depends_on:
+      config-server:
+        condition: service_healthy
+      postgresql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

@@ -28,15 +28,13 @@ jobs:
       - name: Build Common-Lib
         run: |
           cd common-lib
-          chmod +x mvnw
-          ./mvnw clean install -DskipTests
+          mvn clean install -DskipTests
 
       - name: Build and Push Microservices
         run: |
           for dir in discovery-server api-gateway config-server log-service notification-service order-service payment-service product-service shopping-cart-service stock-service user-service; do
             echo "--- Building and Pushing $dir ---"
             cd $dir
-            chmod +x mvnw
-            ./mvnw compile jib:build -DskipTests
+            mvn compile jib:build -DskipTests
             cd ..
           done
