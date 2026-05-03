@@ -273,5 +273,13 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  frontend:
+    image: alperenkaracete/frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+
 volumes:
   postgres_data:
