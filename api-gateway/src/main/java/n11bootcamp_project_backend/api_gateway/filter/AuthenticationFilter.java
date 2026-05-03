@@ -47,7 +47,13 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/swagger-ui.html",
             "/v3/api-docs/**",
             "/webjars/**",
-            "/*-service/v3/api-docs/**"
+            "/cart-service/v3/api-docs/**",
+            "/user-service/v3/api-docs/**",
+            "/product-service/v3/api-docs/**",
+            "/stock-service/v3/api-docs/**",
+            "/order-service/v3/api-docs/**",
+            "/payment-service/v3/api-docs/**",
+            "/log-service/v3/api-docs/**"
     );
 
     @Override
