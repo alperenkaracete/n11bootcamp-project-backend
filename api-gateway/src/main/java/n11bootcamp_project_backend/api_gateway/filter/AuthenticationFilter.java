@@ -110,7 +110,10 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     }
 
     private boolean isPublicPath(String path) {
-        return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
+        return PUBLIC_PATHS.stream().anyMatch(publicPath -> {
+            String pattern = publicPath.replace("/**", "");
+            return path.startsWith(pattern);
+        });
     }
 
     @Override
