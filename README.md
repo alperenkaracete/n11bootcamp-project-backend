@@ -109,7 +109,7 @@ Aşağıdaki sırayla servisleri başlatın:
 8. order-service
 9. payment-service
 10. notification-service
-11. log-service
+11. log-service.
 ```
 
 Her servis için:
@@ -124,15 +124,13 @@ cd <service-name>
 
 ## API Dokümantasyonu
 
-Her servis Swagger ile dokümante edilmiştir:
+Tüm servislerin API dokümantasyonu Swagger UI üzerinden gateway aracılığıyla erişilebilir:
 
-- User Service: http://localhost:8081/swagger-ui/index.html
-- Product Service: http://localhost:8082/swagger-ui/index.html
-- Stock Service: http://localhost:8084/swagger-ui/index.html
-- Cart Service: http://localhost:8083/swagger-ui/index.html
-- Order Service: http://localhost:8085/swagger-ui/index.html
-- Payment Service: http://localhost:8086/swagger-ui/index.html
-- Log Service: http://localhost:8088/swagger-ui/index.html
+**Gateway Swagger UI:** http://34.13.150.164/swagger-ui/index.html
+
+Sağ üstteki "Select a definition" dropdown'undan ilgili servisi seçerek endpoint'leri görüntüleyebilirsiniz.
+
+> **Not:** Swagger UI üzerinden doğrudan istek atılamaz. İsteklerin gateway üzerinden (`http://34.13.150.164/api/...`) gönderilmesi gerekmektedir. Korumalı endpoint'ler için `Authorization: Bearer <token>` header'ı gereklidir.
 
 ## CI/CD Pipeline (Sürekli Entegrasyon ve Dağıtım)
 
