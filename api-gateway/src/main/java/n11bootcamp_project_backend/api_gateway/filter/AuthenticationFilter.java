@@ -42,7 +42,12 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/api/stocks",
             "/api/stocks/**",
             "/actuator/**",
-            "/actuator"
+            "/actuator",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/webjars/**",
+            "/*-service/v3/api-docs/**"
     );
 
     @Override
