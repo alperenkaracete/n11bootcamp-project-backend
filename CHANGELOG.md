@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [1.0.2] - 2026-05-03 - Dockerization & DevOps Integration Changes
+
+### Changed
+- Updated datasource, Redis, and RabbitMQ hosts from localhost to Docker service names in config server property files
+- Local application.properties files remain unchanged (overridden via Docker Compose environment variables)
+
 ## [1.0.1] - 2026-05-03 - Dockerization & DevOps Integration
 
 ### Added

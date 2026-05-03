@@ -52,7 +52,7 @@ services:
     ports:
       - "8761:8761"
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8761/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8761/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -68,7 +68,7 @@ services:
       discovery-server:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8888/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8888/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -79,10 +79,13 @@ services:
     image: alperenkaracete/api-gateway
     container_name: api-gateway
     ports:
-      - "8080:8080"
+      - "80:8080"
     environment:
+      SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      SPRING_CLOUD_CONFIG_ALLOW_OVERRIDE: "true"
+      SPRING_CLOUD_CONFIG_OVERRIDE_SYSTEM_PROPERTIES: "false"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
     depends_on:
       config-server:
         condition: service_healthy
@@ -93,8 +96,11 @@ services:
     ports:
       - "8081:8081"
     environment:
+      SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      SPRING_CLOUD_CONFIG_ALLOW_OVERRIDE: "true"
+      SPRING_CLOUD_CONFIG_OVERRIDE_SYSTEM_PROPERTIES: "false"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/user_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
@@ -113,8 +119,11 @@ services:
     ports:
       - "8082:8082"
     environment:
+      SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      SPRING_CLOUD_CONFIG_ALLOW_OVERRIDE: "true"
+      SPRING_CLOUD_CONFIG_OVERRIDE_SYSTEM_PROPERTIES: "false"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/product_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
@@ -133,8 +142,11 @@ services:
     ports:
       - "8083:8083"
     environment:
+      SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      SPRING_CLOUD_CONFIG_ALLOW_OVERRIDE: "true"
+      SPRING_CLOUD_CONFIG_OVERRIDE_SYSTEM_PROPERTIES: "false"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_DATA_REDIS_HOST: redis
     depends_on:
@@ -151,8 +163,11 @@ services:
     ports:
       - "8084:8084"
     environment:
+      SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      SPRING_CLOUD_CONFIG_ALLOW_OVERRIDE: "true"
+      SPRING_CLOUD_CONFIG_OVERRIDE_SYSTEM_PROPERTIES: "false"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/stock_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
@@ -171,8 +186,11 @@ services:
     ports:
       - "8085:8085"
     environment:
+      SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      SPRING_CLOUD_CONFIG_ALLOW_OVERRIDE: "true"
+      SPRING_CLOUD_CONFIG_OVERRIDE_SYSTEM_PROPERTIES: "false"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/order_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
@@ -194,8 +212,11 @@ services:
     ports:
       - "8086:8086"
     environment:
+      SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      SPRING_CLOUD_CONFIG_ALLOW_OVERRIDE: "true"
+      SPRING_CLOUD_CONFIG_OVERRIDE_SYSTEM_PROPERTIES: "false"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/payment_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
@@ -217,8 +238,11 @@ services:
     ports:
       - "8087:8087"
     environment:
+      SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      SPRING_CLOUD_CONFIG_ALLOW_OVERRIDE: "true"
+      SPRING_CLOUD_CONFIG_OVERRIDE_SYSTEM_PROPERTIES: "false"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
       SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       config-server:
@@ -232,8 +256,11 @@ services:
     ports:
       - "8088:8088"
     environment:
+      SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+      SPRING_CONFIG_IMPORT: "configserver:http://config-server:8888"
+      SPRING_CLOUD_CONFIG_ALLOW_OVERRIDE: "true"
+      SPRING_CLOUD_CONFIG_OVERRIDE_SYSTEM_PROPERTIES: "false"
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8888
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/log_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
