@@ -1,0 +1,42 @@
+name: CI/CD Pipeline - n11 Backend Project
+
+on:
+  push:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Common-Lib
+        run: |
+          cd common-lib
+          chmod +x mvnw
+          ./mvnw clean install -DskipTests
+
+      - name: Build and Push Microservices
+        run: |
+          for dir in discovery-server api-gateway config-server log-service notification-service order-service payment-service product-service shopping-cart-service stock-service user-service; do
+            echo "--- Building and Pushing $dir ---"
+            cd $dir
+            chmod +x mvnw
+            ./mvnw compile jib:build -DskipTests
+            cd ..
+          done
