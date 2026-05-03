@@ -67,4 +67,4 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
-          args: 'n11 Bootcamp Projesi Deploy İşlemi Tamamlandı! Durum: ${{ job.status }}'
+          args: '🚀 n11 Bootcamp Projesi Deploy İşlemi Tamamlandı! Durum: ${{ needs.deploy.result }}'

@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [1.0.3] - 2026-05-03 - Dockerization & DevOps Integration Changes
+
+### Changed
+-Auto deploy and Discord feedback integrated.
+
 ## [1.0.2] - 2026-05-03 - Dockerization & DevOps Integration Changes
 
 ### Changed
