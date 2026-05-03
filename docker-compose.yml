@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
 
   # ==================== INFRASTRUCTURE ====================
@@ -7,9 +5,14 @@ services:
   postgresql:
     image: postgres:16
     container_name: postgresql
+    networks:
+      default:
+        aliases:
+          - user-db
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: 123456
     ports:
       - "5432:5432"
     volumes:
@@ -24,6 +27,7 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
+    restart: unless-stopped
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -36,6 +40,7 @@ services:
   redis:
     image: redis:7
     container_name: redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
     healthcheck:
@@ -49,6 +54,7 @@ services:
   discovery-server:
     image: alperenkaracete/discovery-server
     container_name: discovery-server
+    restart: unless-stopped
     ports:
       - "8761:8761"
     healthcheck:
@@ -60,6 +66,7 @@ services:
   config-server:
     image: alperenkaracete/config-server
     container_name: config-server
+    restart: unless-stopped
     ports:
       - "8888:8888"
     environment:
@@ -78,6 +85,7 @@ services:
   api-gateway:
     image: alperenkaracete/api-gateway
     container_name: api-gateway
+    restart: unless-stopped
     ports:
       - "80:8080"
     environment:
@@ -89,10 +97,16 @@ services:
     depends_on:
       config-server:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   user-service:
     image: alperenkaracete/user-service
     container_name: user-service
+    restart: unless-stopped
     ports:
       - "8081:8081"
     environment:
@@ -103,7 +117,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/user_db
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_PASSWORD: 123456
       SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       config-server:
@@ -116,6 +130,7 @@ services:
   product-service:
     image: alperenkaracete/product-service
     container_name: product-service
+    restart: unless-stopped
     ports:
       - "8082:8082"
     environment:
@@ -126,7 +141,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/product_db
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_PASSWORD: 123456
       SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       config-server:
@@ -139,6 +154,7 @@ services:
   shopping-cart-service:
     image: alperenkaracete/shopping-cart-service
     container_name: shopping-cart-service
+    restart: unless-stopped
     ports:
       - "8083:8083"
     environment:
@@ -160,6 +176,7 @@ services:
   stock-service:
     image: alperenkaracete/stock-service
     container_name: stock-service
+    restart: unless-stopped
     ports:
       - "8084:8084"
     environment:
@@ -170,7 +187,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/stock_db
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_PASSWORD: 123456
       SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       config-server:
@@ -183,6 +200,7 @@ services:
   order-service:
     image: alperenkaracete/order-service
     container_name: order-service
+    restart: unless-stopped
     ports:
       - "8085:8085"
     environment:
@@ -193,7 +211,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/order_db
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_PASSWORD: 123456
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_DATA_REDIS_HOST: redis
     depends_on:
@@ -209,6 +227,7 @@ services:
   payment-service:
     image: alperenkaracete/payment-service
     container_name: payment-service
+    restart: unless-stopped
     ports:
       - "8086:8086"
     environment:
@@ -219,7 +238,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/payment_db
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_PASSWORD: 123456
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_DATA_REDIS_HOST: redis
     depends_on:
@@ -235,6 +254,7 @@ services:
   notification-service:
     image: alperenkaracete/notification-service
     container_name: notification-service
+    restart: unless-stopped
     ports:
       - "8087:8087"
     environment:
@@ -253,6 +273,7 @@ services:
   log-service:
     image: alperenkaracete/log-service
     container_name: log-service
+    restart: unless-stopped
     ports:
       - "8088:8088"
     environment:
@@ -263,7 +284,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgresql:5432/log_db
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_PASSWORD: 123456
       SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       config-server:
@@ -276,10 +297,12 @@ services:
   frontend:
     image: alperenkaracete/frontend
     container_name: frontend
+    restart: unless-stopped
     ports:
       - "3000:3000"
     depends_on:
-      - api-gateway
+      api-gateway:
+        condition: service_healthy
 
 volumes:
   postgres_data:
